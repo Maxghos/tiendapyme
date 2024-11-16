@@ -1,0 +1,54 @@
+/* Reseteo básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Fondo de la página */
+body, html {
+    height: 100%;
+    font-family: 'Arial', sans-serif;
+}
+
+.background {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                url('imagenesGeneral/Moda\ Mujer\ Modelar.jpg') no-repeat center center/cover;
+}
+
+/* Contenido centrado */
+.content {
+    text-align: center;
+    color: white;
+    padding: 20px;
+}
+
+.title {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* Botón estilizado */
+.btn {
+    font-size: 1.5rem;
+    padding: 15px 30px;
+    color: white;
+    background: #ff7a59;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover {
+    background: #ff5733;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.5);
+}
