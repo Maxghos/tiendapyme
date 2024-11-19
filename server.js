@@ -1,5 +1,6 @@
 // Importar módulos necesarios
 const express = require('express');
+const path = require('path'); // Módulo para manejar rutas
 const app = express();
 const PORT = process.env.PORT || 3000;
 const pool = require('./db'); // Importar la conexión a PostgreSQL desde db.js
@@ -10,6 +11,9 @@ app.use(cors());
 
 // Middleware para procesar JSON
 app.use(express.json());
+
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname)));
 
 // Ruta básica de prueba
 app.get('/', (req, res) => {
@@ -314,7 +318,10 @@ app.get('/api/precio/:codigo', async (req, res) => {
   }
 });
 
-
+// Ruta para servir el archivo index.html
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
 
 // Iniciar el servidor
 app.listen(PORT, () => {
