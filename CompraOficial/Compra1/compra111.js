@@ -137,7 +137,7 @@ document.getElementById('continue-btn').addEventListener('click', async () => {
         console.log("Datos a enviar al backend:", dataToSend);
 
         // Enviar los datos al backend
-        const response = await fetch("https://tiendapyme-production.up.railway.app/api/api/cart", {
+        const response = await fetch("https://tiendapyme-production.up.railway.app/api/cart", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
