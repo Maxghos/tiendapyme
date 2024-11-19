@@ -640,14 +640,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (productoSeleccionado && productoSeleccionado.id) {
         try {
             // Solicita el stock del producto al backend
-            const stockResponse = await fetch(`http://localhost:3000/api/productos/${productoSeleccionado.id}`);
+            const stockResponse = await fetch(`https://tiendapyme-production.up.railway.app/api/productos/${productoSeleccionado.id}`);
             if (!stockResponse.ok) {
                 throw new Error('Error al obtener el stock del producto desde la base de datos');
             }
             const stockData = await stockResponse.json();
 
             // Solicita el precio del producto al backend
-            const precioResponse = await fetch(`http://localhost:3000/api/precio/${productoSeleccionado.id}`);
+            const precioResponse = await fetch(`https://tiendapyme-production.up.railway.app/api/precio/${productoSeleccionado.id}`);
             if (!precioResponse.ok) {
                 throw new Error('Error al obtener el precio del producto desde la base de datos');
             }
@@ -683,7 +683,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 // Función para obtener el stock de un producto desde el backend
 async function fetchStock(codigo) {
     try {
-        const response = await fetch(`http://localhost:3000/api/productos/${codigo}`);
+        const response = await fetch(`https://tiendapyme-production.up.railway.app/api/productos/${codigo}`);
         if (!response.ok) {
             throw new Error('Error al obtener el stock del producto');
         }
@@ -698,7 +698,7 @@ async function fetchStock(codigo) {
 // Función para obtener el precio de un producto desde el backend
 async function fetchPrecio(codigo) {
     try {
-        const response = await fetch(`http://localhost:3000/api/precio/${codigo}`);
+        const response = await fetch(`https://tiendapyme-production.up.railway.app/api/precio/${codigo}`);
         if (!response.ok) {
             throw new Error('Error al obtener el precio del producto');
         }

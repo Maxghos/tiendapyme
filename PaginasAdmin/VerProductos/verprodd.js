@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000'; // Cambia al dominio del backend si no es localhost
+const BASE_URL = 'https://tiendapyme-production.up.railway.app'; // Cambia al dominio del backend si no es localhost
 let productos = []; // Lista global para almacenar productos desde el backend
 
 // Función para mostrar y ocultar el menú lateral

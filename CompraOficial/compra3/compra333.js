@@ -57,7 +57,7 @@ nextBtn.addEventListener('click', async () => {
 
     try {
         // Enviar datos al backend
-        const response = await fetch('http://localhost:3000/api/checkout', {
+        const response = await fetch('https://tiendapyme-production.up.railway.app/api/checkout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
