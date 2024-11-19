@@ -1,0 +1,22 @@
+# Evitar archivos sensiblessssss
+.env
+
+# Archivos y carpetas de dependencias cuidao
+node_modules/
+
+# Logss porsia
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistemas operativos (cosas que genera windows nda q ver)
+.DS_Store
+Thumbs.db
+
+# Entornos de desarrollo 
+.idea/
+.vscode/
+*.swp
+
+# Railway específicos para generar
+.railway/

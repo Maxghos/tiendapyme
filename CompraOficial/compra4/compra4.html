@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recibo de Compra</title>
     <link rel="stylesheet" href="compra44.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script defer src="compra444.js"></script>
 </head>
 <body>
     <!-- Fondo con imagen oscurecida -->
     <div class="background-image"></div>
 
-    <!-- Línea de tiempo de progreso (centrada y fuera del recuadro principal) -->
+    <!-- Línea de tiempo de progreso -->
     <div class="progress-wrapper">
         <div class="progress-container">
             <div class="progress-step completed">Resumen de compra</div>
@@ -47,9 +49,13 @@
         </div>
 
         <h1>Gracias</h1>
-        <p>Su recibo se mandó al correo</p>
-        <button class="download-btn">Descargar</button>
-        <button class="back-btn" onclick="window.location.href='../Portada/Portada.html'">Volver a la tienda</button>
+        <div id="resumen-compra">
+            <!-- Aquí se cargará dinámicamente el resumen de compra -->
+        </div>
+        <p>Adjunta el archivo generado junto al comprobante de transferencia a nuestro correo: <strong>mrubioc@utem.cl</strong></p>
+        <div class="buttons-container">
+            <button id="download-pdf" class="download-btn">Descargar Recibo en PDF</button>
+        </div>
     </div>
 </body>
 </html>

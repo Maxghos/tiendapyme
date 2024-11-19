@@ -1,204 +1,190 @@
+const BASE_URL = 'http://localhost:3000'; // Cambia al dominio del backend si no es localhost
+let productos = []; // Lista global para almacenar productos desde el backend
+
 // Función para mostrar y ocultar el menú lateral
 function toggleMenu() {
-    var sidebar = document.getElementById("sidebar");
-    if (sidebar.style.width === "250px") {
-        sidebar.style.width = "0";
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar.style.width === '250px') {
+        sidebar.style.width = '0';
     } else {
-        sidebar.style.width = "250px";
+        sidebar.style.width = '250px';
     }
 }
 
-// Variables para gestionar el modo de edición
-let editIndex = null; // Para identificar el producto que se está editando
-let productos = [ // Ejemplo de productos iniciales
-    {
-        name: "Producto 1",
-        description: "Descripción del Producto 1",
-        price: "100",
-        stock: "10",
-        category: "Electrónica",
-        image: "Imagenesssadanjks/22582ddb4d0654e2e33f99fdf7b4de63.jpg"
-    },
-    {
-        name: "Producto 2",
-        description: "Descripción del Producto 2",
-        price: "150",
-        stock: "5",
-        category: "Hogar",
-        image: "Imagenesssadanjks/Sin título.png"
-    },
-    {
-        name: "Producto 3",
-        description: "Descripción del Producto 3",
-        price: "200",
-        stock: "8",
-        category: "Juguetes",
-        image: "Imagenesssadanjks/tenor.gif"
-    }
-];
 
-// Función para filtrar productos por nombre y categoría
+// Obtener productos desde el backend
+async function fetchProductos() {
+    try {
+        const response = await fetch(`${BASE_URL}/productos`);
+        if (!response.ok) throw new Error('Error al obtener productos');
+        
+        productos = await response.json(); // Actualiza la variable global
+        displayProducts(productos); // Muestra los productos
+    } catch (err) {
+        console.error('Error al obtener productos:', err.message);
+    }
+}
+
+function displayProducts(productos) {
+    const productList = document.getElementById('product-list');
+    productList.innerHTML = ''; // Limpiar la lista antes de mostrar
+
+    productos.forEach((product) => {
+        const productElement = document.createElement('div');
+        productElement.className = 'product';
+        productElement.innerHTML = `
+            <p><strong>ID Producto:</strong> ${product.id_producto}</p>
+            <h3>${product.nombre}</h3>
+            <p>Precio: $${product.precio}</p>
+            <p>Stock: ${product.stock} unidades</p>
+            <p>Categoría: ${product.categoria}</p>
+            <button onclick="openEditProductModal('${product.id_producto}')">Editar</button>
+            <button onclick="deleteProduct('${product.id_producto}')">Eliminar</button>
+        `;
+        productList.appendChild(productElement);
+    });
+}
+
+// Mostrar el modal de agregar producto
+function addProduct() {
+    document.getElementById('addProductModal').style.display = 'block';
+    document.getElementById('errorMessage').style.display = 'none';
+}
+
+// Mostrar el modal de edición y cargar los datos del producto seleccionado
+function openEditProductModal(idProducto) {
+    const producto = productos.find(p => p.id_producto === idProducto);
+
+    if (!producto) {
+        alert('Producto no encontrado');
+        return;
+    }
+
+    // Prellenar los campos del formulario de edición
+    document.getElementById('editProductName').value = producto.nombre;
+    document.getElementById('editProductDescription').value = producto.descripcion;
+    document.getElementById('editProductPrice').value = producto.precio;
+    document.getElementById('editProductStock').value = producto.stock;
+    document.getElementById('editProductCategory').value = producto.categoria;
+
+    // Guardar el ID del producto como atributo del modal
+    document.getElementById('editProductModal').dataset.id = idProducto;
+
+    // Mostrar el modal
+    document.getElementById('editProductModal').style.display = 'block';
+}
+
+// Cerrar un modal
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Agregar producto
+async function submitProduct() {
+    const idProducto = document.getElementById('productId').value.trim();
+    const nombre = document.getElementById('productName').value.trim();
+    const descripcion = document.getElementById('productDescription').value.trim();
+    const precio = document.getElementById('productPrice').value.trim();
+    const stock = document.getElementById('productStock').value.trim();
+    const categoria = document.getElementById('productCategory').value;
+
+    if (!idProducto || !nombre || !descripcion || !precio || !stock || !categoria) {
+        alert("Por favor, completa todos los campos.");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${BASE_URL}/productos`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_producto: idProducto,
+                nombre: nombre,
+                descripcion: descripcion,
+                precio: precio,
+                stock: stock,
+                id_categoria: categoria
+            }),
+        });
+
+        if (!response.ok) throw new Error('Error al agregar producto');
+        alert('Producto agregado correctamente');
+        fetchProductos(); // Actualizar la lista de productos
+        closeModal('addProductModal'); // Cerrar el modal
+    } catch (err) {
+        console.error('Error al agregar producto:', err.message);
+    }
+}
+async function updateProduct() {
+    const modal = document.getElementById('editProductModal');
+    const idProducto = modal.dataset.id; // Obtener el ID del producto desde el atributo del modal
+    const productName = document.getElementById('editProductName').value.trim();
+    const productDescription = document.getElementById('editProductDescription').value.trim();
+    const productPrice = parseFloat(document.getElementById('editProductPrice').value.trim());
+    const productStock = parseInt(document.getElementById('editProductStock').value.trim());
+    const productCategory = document.getElementById('editProductCategory').value;
+
+    // Validación básica
+    if (!productName || !productDescription || isNaN(productPrice) || isNaN(productStock) || !productCategory) {
+        document.getElementById('editErrorMessage').style.display = 'block';
+        return;
+    }
+
+    try {
+        // Enviar la categoría tal cual desde el frontend
+        const response = await fetch(`${BASE_URL}/productos/${idProducto}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre: productName,
+                descripcion: productDescription,
+                precio: productPrice,
+                stock: productStock,
+                id_categoria: productCategory, // Enviar directamente como está
+            }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.text(); // Capturar error del backend
+            throw new Error(errorData);
+        }
+
+        alert('Producto actualizado correctamente');
+        closeModal('editProductModal');
+        fetchProductos(); // Refrescar la lista de productos
+    } catch (err) {
+        console.error('Error al actualizar producto:', err.message);
+        alert('Error al actualizar producto.');
+    }
+}
+
+// Eliminar producto del backend
+async function deleteProduct(idProducto) {
+    try {
+        const response = await fetch(`${BASE_URL}/productos/${idProducto}`, {
+            method: 'DELETE',
+        });
+        if (!response.ok) throw new Error('Error al eliminar producto');
+        alert('Producto eliminado correctamente');
+        fetchProductos();
+    } catch (err) {
+        console.error('Error al eliminar producto:', err.message);
+    }
+}
+
 function filterProducts() {
     const searchValue = document.getElementById('search').value.toLowerCase();
     const categoryValue = document.getElementById('category-filter').value;
+
     const filteredProducts = productos.filter(product => {
-        const matchesCategory = categoryValue === '' || product.category === categoryValue;
-        const matchesSearch = product.name.toLowerCase().includes(searchValue);
+        const matchesCategory = !categoryValue || product.id_categoria === categoryValue;
+        const matchesSearch = product.nombre.toLowerCase().includes(searchValue);
         return matchesCategory && matchesSearch;
     });
 
     displayProducts(filteredProducts); // Muestra solo los productos filtrados
 }
 
-// Función para abrir el modal de agregar producto
-function addProduct() {
-    document.getElementById('addProductModal').style.display = 'block';
-    document.getElementById('errorMessage').style.display = 'none';
-}
 
-// Función para abrir el modal de editar producto
-function openEditProductModal(index) {
-    const product = productos[index];
-    editIndex = index;
-
-    document.getElementById('editProductName').value = product.name;
-    document.getElementById('editProductDescription').value = product.description;
-    document.getElementById('editProductPrice').value = product.price;
-    document.getElementById('editProductStock').value = product.stock;
-    document.getElementById('editProductCategory').value = product.category;
-
-    document.getElementById('editProductModal').style.display = 'block';
-    document.getElementById('editErrorMessage').style.display = 'none';
-}
-
-// Función para cerrar los modales
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-    document.getElementById('addProductForm').reset();
-    document.getElementById('editProductForm').reset();
-}
-
-// Función para agregar un nuevo producto
-function submitProduct() {
-    const productName = document.getElementById('productName').value.trim();
-    const productDescription = document.getElementById('productDescription').value.trim();
-    const productPrice = document.getElementById('productPrice').value.trim();
-    const productStock = document.getElementById('productStock').value.trim();
-    const productCategory = document.getElementById('productCategory').value;
-    const productImage = document.getElementById('productImage').files[0];
-    const errorMessage = document.getElementById('errorMessage');
-
-    if (!productName || !productDescription || !productPrice || !productStock || !productCategory || !productImage) {
-        errorMessage.style.display = 'block';
-        return;
-    } else {
-        errorMessage.style.display = 'none';
-    }
-
-    const newProduct = {
-        name: productName,
-        description: productDescription,
-        price: productPrice,
-        stock: productStock,
-        category: productCategory,
-        image: URL.createObjectURL(productImage)
-    };
-
-    productos.push(newProduct);
-    displayProducts(); 
-    closeModal('addProductModal');
-}
-
-// Función para actualizar un producto existente
-function updateProduct() {
-    const productName = document.getElementById('editProductName').value.trim();
-    const productDescription = document.getElementById('editProductDescription').value.trim();
-    const productPrice = document.getElementById('editProductPrice').value.trim();
-    const productStock = document.getElementById('editProductStock').value.trim();
-    const productCategory = document.getElementById('editProductCategory').value;
-    const productImage = document.getElementById('editProductImage').files[0];
-
-    if (!productName || !productDescription || !productPrice || !productStock || !productCategory) {
-        document.getElementById('editErrorMessage').style.display = 'block';
-        return;
-    } else {
-        document.getElementById('editErrorMessage').style.display = 'none';
-    }
-
-    productos[editIndex] = {
-        ...productos[editIndex],
-        name: productName,
-        description: productDescription,
-        price: productPrice,
-        stock: productStock,
-        category: productCategory,
-        image: productImage ? URL.createObjectURL(productImage) : productos[editIndex].image
-    };
-
-    displayProducts();
-    closeModal('editProductModal');
-}
-
-// Función para mostrar los productos en la interfaz
-function displayProducts(products = productos) {
-    const productList = document.querySelector('.product-list');
-    productList.innerHTML = '';
-
-    products.forEach((product, index) => {
-        const productElement = document.createElement('div');
-        productElement.className = 'product';
-        productElement.setAttribute('data-category', product.category);
-        productElement.innerHTML = `
-            <img src="${product.image}" alt="${product.name}" class="product-image" onclick="viewProductDetails('${product.name}')">
-            <h3>${product.name}</h3>
-            <p>Precio: $${product.price}</p>
-            <p>Stock: ${product.stock} unidades</p>
-            <p>Categoría: ${product.category}</p>
-            <button onclick="openEditProductModal(${index})">Editar</button>
-            <button onclick="deleteProduct(${index})">Eliminar</button>
-        `;
-        productList.appendChild(productElement);
-    });
-}
-
-// Función para ver los detalles de un producto específico
-function viewProductDetails(productName) {
-    const productDetail = document.getElementById('product-detail');
-    const productTitle = document.getElementById('product-name');
-    const productImage = document.getElementById('product-image');
-    const productDescription = document.getElementById('product-description');
-    const productPrice = document.getElementById('product-price');
-    const productStock = document.getElementById('product-stock');
-    const productCategory = document.getElementById('product-category');
-
-    // Verifica que todos los elementos de la sección de detalles existan
-    if (!productDetail || !productImage || !productDescription || !productPrice || !productStock || !productCategory) {
-        console.error("No se encontró uno de los elementos de detalle del producto en el DOM.");
-        return;
-    }
-
-    // Busca el producto en el array de productos
-    const productData = productos.find(product => product.name === productName);
-
-    // Verifica si el producto existe
-    if (productData) {
-        productImage.src = productData.image;
-        productTitle.textContent = productData.name;
-        productDescription.textContent = productData.description;
-        productPrice.textContent = "$" + productData.price;
-        productStock.textContent = productData.stock + " unidades";
-        productCategory.textContent = productData.category;
-        productDetail.style.display = 'block';
-    } else {
-        console.error("Producto no encontrado.");
-    }
-}
-
-// Eliminar producto
-function deleteProduct(index) {
-    productos.splice(index, 1);
-    displayProducts();
-}
-
-// Inicializar la lista de productos al cargar la página
-displayProducts();
+// Cargar productos al iniciar
+fetchProductos();

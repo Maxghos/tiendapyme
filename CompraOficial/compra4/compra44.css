@@ -101,6 +101,28 @@ p {
     margin-bottom: 30px;
 }
 
+/* Resumen de compra */
+#resumen-compra {
+    text-align: left;
+    margin: 20px auto;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    font-size: 1em;
+    color: #444;
+}
+
+#resumen-compra ul {
+    list-style-type: disc;
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+#resumen-compra ul li {
+    margin-bottom: 5px;
+}
+
 /* Botón de descarga */
 .download-btn, .back-btn {
     background-color: #28a745;
@@ -128,11 +150,11 @@ p {
 
 /* Estilos para los iconos de emociones */
 .rating-container {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    text-align: center;
 }
 
 .rating-container p {
-    color: #333;
     font-size: 1.1em;
     margin-bottom: 10px;
 }
@@ -161,4 +183,11 @@ p {
 
 .super-sad:checked + .svg {
     fill: rgb(239, 42, 16);
+}
+
+.buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Espaciado entre botones */
+    margin-top: 20px;
 }

@@ -24,31 +24,46 @@
     <div class="container">
         <h1>Datos de Compra</h1>
         
-        <!-- Formulario de datos del usuario -->
-        <form id="datos-form">
-            <div class="form-group">
-                <label for="nombre">Nombre:</label>
-                <input type="text" id="nombre" name="nombre" required>
-            </div>
-            <div class="form-group">
-                <label for="apellido">Apellido:</label>
-                <input type="text" id="apellido" name="apellido" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Correo Electrónico:</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="form-group">
-                <label>Punto de Entrega:</label>
-                <div class="location-content">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3331.2428433126314!2d-70.618611!3d-33.590556!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662d13b46a1d9b1%3A0x5670fa4f1d85d291!2sEl%20Castillo%20-%20Paradero%2038-41%20Santa%20Rosa!5e0!3m2!1ses-419!2scl!4v1698858987783!5m2!1ses-419!2scl" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    <p>Por la Calle Juanita,<br> El Castillo, La Pintana</p>
-                </div>
-            </div>
-            <button type="button" id="next-btn" class="next-btn">Siguiente</button>
-        </form>
+<!-- Formulario de datos del usuario -->
+<form id="datos-form">
+    <div class="form-group">
+        <label for="nombre">Nombre:</label>
+        <input type="text" id="nombre" name="nombre" required>
+    </div>
+    <div class="form-group">
+        <label for="email">Correo Electrónico:</label>
+        <input type="email" id="email" name="email" required>
+    </div>
+    <div class="form-group">
+        <label for="telefono">Teléfono:</label>
+        <input type="tel" id="telefono" name="telefono" required>
+    </div>
+    <div class="form-group">
+        <label for="domicilio">Domicilio:</label>
+        <textarea id="domicilio" name="domicilio" rows="3" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="contraseña">Contraseña:</label>
+        <input type="password" id="contraseña" name="contraseña" minlength="7" required>
+        <div class="show-password">
+            <input type="checkbox" id="toggle-password"> Mostrar contraseña
+        </div>
+    </div>
+    
+    <div class="form-group">
+        <label>Punto de Entrega:</label>
+        <div class="location-content">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3331.2428433126314!2d-70.618611!3d-33.590556!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662d13b46a1d9b1%3A0x5670fa4f1d85d291!2sEl%20Castillo%20-%20Paradero%2038-41%20Santa%20Rosa!5e0!3m2!1ses-419!2scl!4v1698858987783!5m2!1ses-419!2scl" 
+                width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <p>Por la Calle Juanita,<br> El Castillo, La Pintana</p>
+        </div>
+    </div>
+    <button type="button" id="submit-btn" class="submit-btn">Aceptar</button>
+</form>
+
     </div>
 
-    <script src="compra22.js"></script> <!-- Archivo JS externo -->
+    <script src="compra222.js"></script> <!-- Archivo JS externo -->
 </body>
 </html>

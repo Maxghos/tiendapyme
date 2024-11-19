@@ -629,3 +629,117 @@ document.querySelectorAll('.productos-destacados .producto-link').forEach((link,
         }
     });
 });
+
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // Recupera el producto seleccionado desde el localStorage
+    const productoSeleccionadoJSON = localStorage.getItem('productoSeleccionado');
+    const productoSeleccionado = productoSeleccionadoJSON ? JSON.parse(productoSeleccionadoJSON) : null;
+
+    if (productoSeleccionado && productoSeleccionado.id) {
+        try {
+            // Solicita el stock del producto al backend
+            const stockResponse = await fetch(`http://localhost:3000/api/productos/${productoSeleccionado.id}`);
+            if (!stockResponse.ok) {
+                throw new Error('Error al obtener el stock del producto desde la base de datos');
+            }
+            const stockData = await stockResponse.json();
+
+            // Solicita el precio del producto al backend
+            const precioResponse = await fetch(`http://localhost:3000/api/precio/${productoSeleccionado.id}`);
+            if (!precioResponse.ok) {
+                throw new Error('Error al obtener el precio del producto desde la base de datos');
+            }
+            const precioData = await precioResponse.json();
+
+            // Actualiza el stock y el precio en la página
+            document.getElementById('product-stock').textContent = stockData.stock;
+            document.querySelector('.price').textContent = `$${precioData.precio}`;
+        } catch (error) {
+            console.error('Error al cargar los datos del producto:', error.message);
+
+            // Si hay un error, muestra "Error" en lugar de los datos
+            document.getElementById('product-stock').textContent = 'Error';
+            document.querySelector('.price').textContent = 'Error';
+        }
+    } else {
+        console.warn('No se encontró un producto seleccionado o un código válido.');
+    }
+});
+
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+
+
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------
+
+
+// Función para obtener el stock de un producto desde el backend
+async function fetchStock(codigo) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/productos/${codigo}`);
+        if (!response.ok) {
+            throw new Error('Error al obtener el stock del producto');
+        }
+        const data = await response.json();
+        return data.stock; // Devuelve el stock obtenido
+    } catch (error) {
+        console.error(`Error al obtener el stock para el código ${codigo}:`, error.message);
+        return 'Error'; // Retorna "Error" si ocurre algún problema
+    }
+}
+
+// Función para obtener el precio de un producto desde el backend
+async function fetchPrecio(codigo) {
+    try {
+        const response = await fetch(`http://localhost:3000/api/precio/${codigo}`);
+        if (!response.ok) {
+            throw new Error('Error al obtener el precio del producto');
+        }
+        const data = await response.json();
+        return data.precio; // Devuelve el precio obtenido
+    } catch (error) {
+        console.error(`Error al obtener el precio para el código ${codigo}:`, error.message);
+        return 'Error'; // Retorna "Error" si ocurre algún problema
+    }
+}
+
+
+// Función para actualizar el stock y precio en los elementos del catálogo
+async function updateCatalogData() {
+    const productos = document.querySelectorAll('.producto'); // Encuentra todos los productos en el catálogo
+
+    productos.forEach(async (producto) => {
+        const codigo = producto.getAttribute('data-codigo'); // Obtiene el código del producto
+        const stockElement = producto.querySelector('.stock'); // Elemento donde se muestra el stock
+        const precioElement = producto.querySelector('.price'); // Elemento donde se muestra el precio
+
+        // Asegúrate de que el elemento exista antes de actualizar
+        if (codigo) {
+            if (stockElement) {
+                const stock = await fetchStock(codigo);
+                stockElement.textContent = stock !== 'Error' ? stock : 'Error';
+            } else {
+                console.warn(`Elemento '.stock' no encontrado para el producto con código: ${codigo}`);
+            }
+
+            if (precioElement) {
+                const precio = await fetchPrecio(codigo);
+                precioElement.textContent = precio !== 'Error' ? `$${precio}` : 'Error';
+            } else {
+                console.warn(`Elemento '.price' no encontrado para el producto con código: ${codigo}`);
+            }
+        } else {
+            console.warn(`Código no encontrado para un producto en el catálogo.`);
+        }
+    });
+}
+
+// Llama a la función cuando se carga la página
+document.addEventListener('DOMContentLoaded', updateCatalogData);

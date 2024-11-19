@@ -1,27 +1,30 @@
-const { Client } = require('pg'); // Importa el cliente de PostgreSQL
+const { Pool } = require('pg'); // Importar el Pool de conexiones
+require('dotenv').config(); // Cargar las variables de entorno desde el archivo .env
 
-// Configuración de la base de datos
-const client = new Client({
-  connectionString: process.env.DATABASE_URL, // Usa la variable de entorno
-  ssl: {
-    rejectUnauthorized: false, // Habilita SSL si Railway lo requiere
-  },
+// Configuración del Pool de PostgreSQL
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL, // Dirección de la base de datos desde .env
+    ssl: {
+        rejectUnauthorized: false, // Asegúrate de usar esto si Railway requiere SSL
+    },
 });
 
-// Función para probar la conexión
-const testConnection = async () => {
-  try {
-    await client.connect(); // Conéctate al servidor
-    console.log('✅ Conexión exitosa a PostgreSQL en Railway');
+// Probar la conexión (esto se ejecutará al cargar el archivo)
+pool.connect((err, client, release) => {
+    if (err) {
+        console.error('❌ Error al conectar con la base de datos:', err.stack);
+    } else {
+        console.log('✅ Conexión exitosa a PostgreSQL');
+        client.query('SELECT NOW()', (err, result) => {
+            release(); // Libera el cliente después de la consulta
+            if (err) {
+                console.error('❌ Error al ejecutar la consulta:', err.stack);
+            } else {
+                console.log('Fecha y hora actuales en la base de datos:', result.rows[0]);
+            }
+        });
+    }
+});
 
-    const res = await client.query('SELECT NOW()'); // Realiza una consulta simple
-    console.log('Fecha y hora actuales en la base de datos:', res.rows[0]);
-  } catch (err) {
-    console.error('❌ Error al conectar con la base de datos:', err);
-  } finally {
-    await client.end(); // Cierra la conexión
-  }
-};
-
-// Ejecuta la función
-testConnection();
+// Exportar el pool para usarlo en otros archivos
+module.exports = pool;

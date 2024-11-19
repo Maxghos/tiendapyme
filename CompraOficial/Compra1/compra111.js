@@ -71,6 +71,19 @@ function renderCartItems() {
     }
 
     cartItems.forEach((item, index) => {
+        // Limpia el precio eliminando el símbolo "$" y convierte a número
+        const price = parseFloat(item.price.replace('$', '').trim());
+        const quantity = parseInt(item.quantity, 10); // Convertir cantidad a entero
+
+        // Verifica si los datos son válidos
+        if (isNaN(price) || isNaN(quantity)) {
+            console.error('Datos inválidos en el producto:', item);
+            return;
+        }
+
+        const itemTotal = price * quantity; // Cálculo correcto del total por producto
+        total += itemTotal;
+
         const cartItem = document.createElement('div');
         cartItem.classList.add('cart-item');
 
@@ -79,19 +92,21 @@ function renderCartItems() {
             <div class="cart-item-details">
                 <p><strong>${item.name}</strong></p>
                 <p>Talla: ${item.talla}</p>
-                <p>Cantidad: ${item.quantity}</p>
-                <p>Precio Unitario: $${item.price}</p>
-                <p>Total: $${(item.price * item.quantity).toFixed(2)}</p>
+                <p>Cantidad: ${quantity}</p>
+                <p>Precio Unitario: $${price.toFixed(2)}</p>
+                <p>Total: $${itemTotal.toFixed(2)}</p>
             </div>
             <button class="remove-btn" onclick="removeCartItem(${index})">Eliminar</button>
         `;
 
         cartItemsContainer.appendChild(cartItem);
-        total += item.price * item.quantity;
     });
 
     cartTotalElement.textContent = `$${total.toFixed(2)}`;
+    return total; // Devuelve el total para usarlo en el envío al backend
 }
+
+
 
 // Función para eliminar un producto del carrito
 function removeCartItem(index) {
@@ -100,21 +115,34 @@ function removeCartItem(index) {
     renderCartItems();
 }
 
-// Redirige a la siguiente página de datos y envía el carrito al back-end
+// Redirige a la siguiente página de datos y envía los datos esenciales al backend
 document.getElementById('continue-btn').addEventListener('click', async () => {
     if (cartItems.length === 0) {
         alert("Tu carrito está vacío. Por favor, agrega productos antes de continuar.");
         return;
     }
 
+    const total = renderCartItems(); // Calcula el total antes de enviar
+
     try {
-        // Enviar el carrito al back-end
-        const response = await fetch("https://tu-backend/api/cart", {
+        // Filtrar los datos necesarios para el backend
+        const dataToSend = {
+            carrito: cartItems.map(item => ({
+                nombre: item.name || 'Sin nombre', // Nombre del producto
+                cantidad: item.quantity || 1      // Cantidad del producto
+            })),
+            total // Incluye el total calculado
+        };
+
+        console.log("Datos a enviar al backend:", dataToSend);
+
+        // Enviar los datos al backend
+        const response = await fetch("http://localhost:3000/api/cart", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify(cartItems) // Enviar el carrito
+            body: JSON.stringify(dataToSend)
         });
 
         if (!response.ok) {
@@ -124,13 +152,14 @@ document.getElementById('continue-btn').addEventListener('click', async () => {
         const result = await response.json();
 
         // Confirmar éxito y redirigir
-        alert("El stock ha sido actualizado y tu compra está lista para continuar.");
+        alert("Tu carrito ha sido procesado correctamente.");
         window.location.href = "../Compra2/compra2.html";
     } catch (error) {
         console.error("Error:", error);
         alert("Ocurrió un problema al procesar tu carrito.");
     }
 });
+
 
 // Inicializa el carrito en la página
 renderCartItems();

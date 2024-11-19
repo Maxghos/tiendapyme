@@ -7,120 +7,81 @@
     <link rel="stylesheet" href="verproduccst.css">
 </head>
 <body>
+    <!-- Menú lateral -->
+    <div id="sidebar" class="sidebar">
+        <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
+        <a href="../InicioAdmi/inicioad.html">Inicio</a>
+        <a href="../VerProductos/verproducts.html">Productos</a>
+        <a href="../Verusuarios/verusuari.html">Usuarios</a>
+        <a href="../ConfiguAdmin/configAD.html">Configuración</a>
+    </div>
 
-
-
-    
-        <!-- Menú lateral -->
-        <div id="sidebar" class="sidebar">
-            <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
-            <a href="../InicioAdmi/inicioad.html">Inicio</a>
-            <a href="../VerProductos/verproducts.html">Productos</a>
-            <a href="../Verusuarios/verusuari.html">Usuarios</a>
-            <a href="../ConfiguAdmin/configAD.html">Configuración</a>
+    <!-- Contenido principal -->
+    <header>
+        <div class="menu-icon-container" onclick="toggleMenu()">
+            <i class="menu-icon">☰</i>
         </div>
+        <h1>VER PRODUCTOS</h1>
+        <a href="#" class="admin">Administración General</a>
+    </header>
     
-
-
-
-        <!-- Contenido principal -->
-        <header>
-            <div class="menu-icon-container" onclick="toggleMenu()">
-                <i class="menu-icon">☰</i>
-            </div>
-            <h1>VER PRODUCTOS</h1>
-            <a href="#" class="admin">Administración General</a>
-        </header>
-        
     <div class="main-content">
-
-
-
         <!-- Opciones de búsqueda y filtrado -->
         <div class="search-filter">
             <input type="text" id="search" placeholder="Buscar productos..." onkeyup="filterProducts()">
             <select id="category-filter" onchange="filterProducts()">
                 <option value="">Filtrar por categoría</option>
-                <option value="Electrónica">Electrónica</option>
-                <option value="Hogar">Hogar</option>
-                <option value="Juguetes">Juguetes</option>
+                <option value="Calzones">Calzones</option>
+                <option value="FaldasPantys">FaldasPantys</option>
+                <option value="Calcetas">Calcetas</option>
+                <option value="Sostenes">Sostenes</option>
+                <option value="Ropa Superior">Ropa Superior</option>
             </select>
-
-
-                <!-- Agrega más categorías según sea necesario -->
+            
             <button onclick="addProduct()">Agregar Producto</button>
         </div>
 
-
-
-
-
-<!-- Productos -->
-        <div class="product-list">
-            <div class="product" onclick="viewProductDetails('Producto 1')">
-                <img src="Imagenesssadanjks/22582ddb4d0654e2e33f99fdf7b4de63.jpg" alt="Producto 1" class="product-image">
-                <h3>Producto 1</h3>
-                <p>Precio: $100</p>
-                <p>Stock: 10 unidades</p>
-                <button onclick="editProduct(event, 'Producto 1')">Editar</button>
-                <button onclick="deleteProduct(event, 'Producto 1')">Eliminar</button>
-            </div>
-            <div class="product" onclick="viewProductDetails('Producto 2')">
-                <img src="Imagenesssadanjks/Sin título.png" alt="Producto 2" class="product-image">
-                <h3>Producto 2</h3>
-                <p>Precio: $150</p>
-                <p>Stock: 5 unidades</p>
-                <button onclick="editProduct(event, 'Producto 2')">Editar</button>
-                <button onclick="deleteProduct(event, 'Producto 2')">Eliminar</button>
-            </div>
-            <div class="product" onclick="viewProductDetails('Producto 3')">
-                <img src="Imagenesssadanjks/tenor.gif" alt="Producto 3" class="product-image">
-                <h3>Producto 3</h3>
-                <p>Precio: $200</p>
-                <p>Stock: 8 unidades</p>
-                <button onclick="editProduct(event, 'Producto 3')">Editar</button>
-                <button onclick="deleteProduct(event, 'Producto 3')">Eliminar</button>
-            </div>
+        <!-- Lista de productos -->
+        <div class="product-list" id="product-list">
+            <!-- Productos cargados dinámicamente desde el backend -->
         </div>
 
+        <!-- Modal para Agregar Producto -->
+        <div class="modal" id="addProductModal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal('addProductModal')">&times;</span>
+                <h2>Agregar Nuevo Producto</h2>
+                <form id="addProductForm">
+                    <label for="productId">ID Producto:</label>
+                    <input type="text" id="productId" required>
 
+                    <label for="productName">Nombre:</label>
+                    <input type="text" id="productName" required>
+                    
+                    <label for="productDescription">Descripción:</label>
+                    <textarea id="productDescription" required></textarea>
 
+                    <label for="productPrice">Precio:</label>
+                    <input type="number" id="productPrice" required>
 
-        <!-- AGREGAR PRODUCTO VENTANA EMERGENTE -->
-<!-- Modal para Agregar Producto -->
-<div class="modal" id="addProductModal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('addProductModal')">&times;</span>
-        <h2>Agregar Nuevo Producto</h2>
-        <form id="addProductForm">
-            <label for="productName">Nombre:</label>
-            <input type="text" id="productName" required>
-            
-            <label for="productDescription">Descripción:</label>
-            <textarea id="productDescription" required></textarea>
+                    <label for="productStock">Stock:</label>
+                    <input type="number" id="productStock" required>
 
-            <label for="productPrice">Precio:</label>
-            <input type="number" id="productPrice" required>
+                    <label for="productCategory">Categoría:</label>
+                    <select id="productCategory" required>
+                        <option value="">Seleccione una categoría</option>
+                        <option value="Calzones">Calzones</option>
+                        <option value="FaldasPantys">FaldasPantys</option>
+                        <option value="Calcetas">Calcetas</option>
+                        <option value="Sostenes">Sostenes</option>
+                        <option value="Ropa Superior">Ropa Superior</option>
+                    </select>
 
-            <label for="productStock">Stock:</label>
-            <input type="number" id="productStock" required>
-
-            <label for="productCategory">Categoría:</label>
-            <select id="productCategory" required>
-                <option value="">Seleccione una categoría</option>
-                <option value="Electrónica">Electrónica</option>
-                <option value="Hogar">Hogar</option>
-                <option value="Juguetes">Juguetes</option>
-            </select>
-
-            <label for="productImage">Imagen:</label>
-            <input type="file" id="productImage" required>
-
-            <button type="button" onclick="submitProduct()">Agregar Producto</button>
-        </form>
-        <p id="errorMessage" class="error-message">Por favor, completa todos los campos.</p>
-    </div>
-</div>
+                    <button type="button" onclick="submitProduct()">Agregar Producto</button>
+                </form>
+                <p id="errorMessage" class="error-message">Por favor, completa todos los campos.</p>
+            </div>
+        </div>
 
 <!-- Modal para Editar Producto -->
 <div class="modal" id="editProductModal">
@@ -143,32 +104,19 @@
             <label for="editProductCategory">Categoría:</label>
             <select id="editProductCategory" required>
                 <option value="">Seleccione una categoría</option>
-                <option value="Electrónica">Electrónica</option>
-                <option value="Hogar">Hogar</option>
-                <option value="Juguetes">Juguetes</option>
+                <option value="Calzones">Calzones</option>
+                <option value="FaldasPantys">FaldasPantys</option>
+                <option value="Calcetas">Calcetas</option>
+                <option value="Sostenes">Sostenes</option>
+                <option value="Ropa Superior">Ropa Superior</option>
             </select>
-
-            <label for="editProductImage">Imagen (opcional):</label>
-            <input type="file" id="editProductImage">
 
             <button type="button" onclick="updateProduct()">Guardar Cambios</button>
         </form>
         <p id="editErrorMessage" class="error-message">Por favor, completa todos los campos obligatorios.</p>
     </div>
 </div>
-
-
-
-        <!-- Detalle de producto -->
-        <div class="product-detail" id="product-detail" style="display: none;">
-            <h2>Detalles del Producto</h2>
-            <img id="product-image" src="" alt="Imagen del Producto" class="detail-image">
-            <h3 id="product-name" style="font-weight: bold; font-size: 1.5em; margin-top: 10px;"></h3>
-            <p><strong>Descripción:</strong> <span id="product-description">Selecciona un producto para ver los detalles.</span></p>
-            <p><strong>Precio:</strong> <span id="product-price"></span></p>
-            <p><strong>Stock:</strong> <span id="product-stock"></span></p>
-            <p><strong>Categoría:</strong> <span id="product-category"></span></p>
-        </div>
+    </div>
 
     <script src="verprodd.js"></script>
 </body>
