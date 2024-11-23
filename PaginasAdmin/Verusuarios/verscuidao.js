@@ -1,30 +1,144 @@
+const API_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Cambia por tu ruta real
+
+// Alternar el menú lateral
 function toggleMenu() {
-    var sidebar = document.getElementById("sidebar");
+    const sidebar = document.getElementById("sidebar");
     sidebar.style.width = (sidebar.style.width === "250px") ? "0" : "250px";
 }
 
-// Función para abrir el formulario de agregar usuario
+// Abrir el formulario para agregar usuario
 function openAddUserForm() {
     document.getElementById('addUserModal').style.display = 'block';
 }
 
-// Función para cerrar el modal
+// Cerrar modal
 function closeModal(modalId) {
     document.getElementById(modalId).style.display = 'none';
 }
 
-// Función para agregar usuario
-function addUser() {
-    alert("Función para agregar un nuevo usuario - Guardar en la base de datos.");
-    closeModal('addUserModal');
+// Obtener y mostrar usuarios desde la base de datos
+async function fetchUsers() {
+    try {
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error('Error al obtener los usuarios');
+        }
+        const users = await response.json();
+
+        const userList = document.getElementById('user-list');
+        userList.innerHTML = ''; // Limpiar lista actual
+
+        users.forEach(user => {
+            const userCard = document.createElement('div');
+            userCard.className = 'user-card';
+            userCard.innerHTML = `
+                <h3>${user.nombre}</h3>
+                <p><strong>Email:</strong> ${user.correo_electronico}</p>
+                <p><strong>Rol:</strong> ${user.id_rol === 1 ? 'Administrador' : 'Usuario'}</p>
+                <button onclick="editUser('${user.id_usuario}')">Editar</button>
+                <button onclick="confirmDeleteUser('${user.id_usuario}')">Eliminar</button>
+            `;
+            userList.appendChild(userCard);
+        });
+    } catch (error) {
+        console.error('Error al cargar usuarios:', error.message);
+        alert('No se pudieron cargar los usuarios.');
+    }
 }
 
-// Función para editar usuario
-function editUser(userName) {
-    alert("Función para editar el usuario: " + userName + " - Guardar los cambios en la base de datos.");
+// Agregar usuario
+async function addUser() {
+    const nombre = document.getElementById('userName').value;
+    const correo = document.getElementById('userEmail').value;
+    const contraseña = document.getElementById('userPassword').value;
+    const rol = document.getElementById('userRole').value;
+
+    if (!nombre || !correo || !contraseña) {
+        alert('Por favor, completa todos los campos');
+        return;
+    }
+
+    try {
+        const response = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre,
+                correo_electronico: correo,
+                contraseña,
+                id_rol: rol === 'admin' ? 1 : 2, // 1 para Admin, 2 para Usuario
+                domicilio: 'Sin domicilio', // Valor predeterminado
+                telefono: 'Sin teléfono'   // Valor predeterminado
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al agregar el usuario');
+        }
+
+        alert('Usuario agregado exitosamente');
+        closeModal('addUserModal');
+        fetchUsers(); // Actualizar la lista de usuarios
+    } catch (error) {
+        console.error('Error al agregar usuario:', error.message);
+        alert('No se pudo agregar el usuario.');
+    }
 }
 
-// Función para confirmar eliminación de usuario
-function confirmDeleteUser(userName) {
-    alert("Función para eliminar el usuario: " + userName + " - Eliminar de la base de datos.");
+// Editar usuario
+async function editUser(userId) {
+    const nombre = prompt('Introduce el nuevo nombre del usuario');
+    const correo = prompt('Introduce el nuevo correo electrónico');
+    const rol = confirm('¿Es Administrador (si será administrador aprete cancelar?') ? 1 : 2; // Asignar rol basado en confirmación
+
+    if (!nombre || !correo) {
+        alert('No puedes dejar los campos vacíos');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre,
+                correo_electronico: correo,
+                id_rol: rol
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al editar el usuario');
+        }
+
+        alert('Usuario editado exitosamente');
+        fetchUsers(); // Actualizar la lista de usuarios
+    } catch (error) {
+        console.error('Error al editar usuario:', error.message);
+        alert('No se pudo editar el usuario.');
+    }
 }
+
+// Confirmar y eliminar usuario
+async function confirmDeleteUser(userId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
+
+    try {
+        const response = await fetch(`${API_URL}/${userId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al eliminar el usuario');
+        }
+
+        alert('Usuario eliminado exitosamente');
+        fetchUsers(); // Actualizar la lista de usuarios
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error.message);
+        alert('No se pudo eliminar el usuario.');
+    }
+}
+
+// Inicializar la carga de usuarios cuando se carga la página
+document.addEventListener('DOMContentLoaded', fetchUsers);

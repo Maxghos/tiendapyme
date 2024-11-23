@@ -318,6 +318,157 @@ app.get('/api/precio/:codigo', async (req, res) => {
   }
 });
 
+// Ruta para manejar inicio de sesión
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ error: "Correo y contraseña son obligatorios." });
+    }
+
+    try {
+        // Consultar el usuario en la base de datos
+        const query = `
+            SELECT id_rol, contraseña
+            FROM usuario
+            WHERE correo_electronico = $1
+        `;
+        const result = await pool.query(query, [email]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado." });
+        }
+
+        const user = result.rows[0];
+
+        // Validar la contraseña
+        if (user.contraseña !== password) {
+            return res.status(401).json({ error: "Contraseña incorrecta." });
+        }
+
+        // Devolver el rol del usuario
+        res.json({ id_rol: user.id_rol });
+    } catch (error) {
+        console.error("Error durante la autenticación:", error.message);
+        res.status(500).json({ error: "Error interno del servidor." });
+    }
+});
+
+//Para registrarUsuario
+app.post('/api/registrarse', async (req, res) => {
+    const { id_usuario, id_rol = 2, correo_electronico, contraseña, nombre, domicilio, telefono } = req.body;
+
+    // Validar que todos los campos requeridos estén presentes
+    if (!correo_electronico || !contraseña || !nombre) {
+        return res.status(400).json({ error: "Faltan datos requeridos para el registro." });
+    }
+
+    try {
+        // Generar un nuevo ID de usuario (puedes usar una lógica más avanzada si es necesario)
+        const newIdUsuario = Math.floor(Math.random() * 1000000000); // Generar un número aleatorio
+
+        // Insertar el nuevo usuario en la base de datos
+        const query = `
+            INSERT INTO usuario (id_usuario, id_rol, correo_electronico, contraseña, nombre, domicilio, telefono)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+        `;
+        await pool.query(query, [
+            newIdUsuario,
+            id_rol,
+            correo_electronico,
+            contraseña,
+            nombre,
+            domicilio || 'Sin domicilio', // Valor predeterminado
+            telefono || 'Sin teléfono',  // Valor predeterminado
+        ]);
+
+        res.status(201).json({ message: "Usuario registrado exitosamente." });
+    } catch (error) {
+        console.error("Error al registrar usuario:", error.message);
+        res.status(500).json({ error: "Hubo un problema al registrar el usuario." });
+    }
+});
+
+// Ruta para obtener el nombre de un producto por su código
+app.get('/api/nombre/:codigo', async (req, res) => {
+    const { codigo } = req.params; // Obtiene el código del producto de la URL
+
+    try {
+        // Consulta a la base de datos
+        const query = `SELECT nombre FROM productos WHERE id_producto = $1`;
+        const result = await pool.query(query, [codigo]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'Producto no encontrado' });
+        }
+
+        // Responde con el nombre del producto
+        res.json({ nombre: result.rows[0].nombre });
+    } catch (error) {
+        console.error('Error al obtener nombre:', error.message);
+        res.status(500).json({ error: 'Error al obtener nombre' });
+    }
+});
+
+//Cosa de editar USUARIOS
+app.put('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { nombre, correo_electronico, id_rol } = req.body;
+
+    try {
+        const query = `
+            UPDATE usuario
+            SET nombre = $1, correo_electronico = $2, id_rol = $3
+            WHERE id_usuario = $4
+        `;
+        const result = await pool.query(query, [nombre, correo_electronico, id_rol, id]);
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Usuario actualizado exitosamente' });
+    } catch (error) {
+        console.error('Error al actualizar usuario:', error.message);
+        res.status(500).json({ error: 'Error al actualizar usuario' });
+    }
+});
+
+// Ruta para obtener usuarios
+app.get('/api/usuarios', async (req, res) => {
+    try {
+        console.log('Solicitud recibida en /api/usuarios');
+        const result = await pool.query('SELECT * FROM usuario');
+        console.log('Usuarios obtenidos:', result.rows);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener usuarios:', error.message);
+        res.status(500).json({ error: 'Error al obtener usuarios' });
+    }
+});
+
+// Ruta para eliminar un usuario por su ID
+app.delete('/api/usuarios/:id', async (req, res) => {
+    const { id } = req.params; // Obtiene el ID del usuario de los parámetros de la URL
+
+    try {
+        // Consulta para eliminar al usuario
+        const query = `DELETE FROM usuario WHERE id_usuario = $1`;
+        const result = await pool.query(query, [id]);
+
+        // Verifica si el usuario fue encontrado y eliminado
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+
+        res.status(200).json({ message: 'Usuario eliminado exitosamente' });
+    } catch (error) {
+        console.error('Error al eliminar usuario:', error.message);
+        res.status(500).json({ error: 'Error al eliminar usuario' });
+    }
+});
+
+
 // Ruta para servir el archivo index.html
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));

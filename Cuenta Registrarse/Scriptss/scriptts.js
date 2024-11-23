@@ -80,3 +80,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // **FINAL FUNCIÓN PARA VENTANA EMERGENTE DE SESIÓN**
 //--------------------------------------------------------------------------------------------------------------------------------------
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    // Capturar el formulario de registro
+    const form = document.querySelector('form');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Evitar que el formulario recargue la página
+
+        // Obtener los datos del formulario
+        const nombre = document.getElementById('nombre').value;
+        const correo = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+
+        // Validar contraseñas
+        if (password !== passwordConfirm) {
+            alert('Las contraseñas no coinciden.');
+            return;
+        }
+
+        // Crear el objeto con los datos del usuario
+        const usuario = {
+            nombre: nombre,
+            correo_electronico: correo,
+            contraseña: password,
+        };
+
+        try {
+            // Enviar los datos al backend
+            const response = await fetch('https://tiendapyme-production.up.railway.app/api/registrarse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(usuario),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('Usuario registrado exitosamente.');
+                // Redirigir al inicio de sesión
+                window.location.href = '../Cuenta InicioSesion/IniciarSes.html';
+            } else {
+                alert(data.error || 'Hubo un problema al registrar el usuario.');
+            }
+        } catch (error) {
+            console.error('Error al enviar datos de registro:', error);
+            alert('Hubo un error al conectar con el servidor.');
+        }
+    });
+});

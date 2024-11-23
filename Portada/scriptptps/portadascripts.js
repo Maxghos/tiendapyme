@@ -670,8 +670,22 @@ async function fetchPrecio(codigo) {
     }
 }
 
+// **Nueva función para obtener el nombre de un producto desde el backend**
+async function fetchNombre(codigo) {
+    try {
+        const response = await fetch(`https://tiendapyme-production.up.railway.app/api/nombre/${codigo}`);
+        if (!response.ok) {
+            throw new Error('Error al obtener el nombre del producto');
+        }
+        const data = await response.json();
+        return data.nombre; // Devuelve el nombre obtenido
+    } catch (error) {
+        console.error(`Error al obtener el nombre para el código ${codigo}:`, error.message);
+        return 'Error'; // Retorna "Error" si ocurre algún problema
+    }
+}
 
-// Función para actualizar el stock y precio en los elementos del catálogo
+// Función para actualizar el stock, precio y nombre en los elementos del catálogo
 async function updateCatalogData() {
     const productos = document.querySelectorAll('.producto'); // Encuentra todos los productos en el catálogo
 
@@ -679,6 +693,7 @@ async function updateCatalogData() {
         const codigo = producto.getAttribute('data-codigo'); // Obtiene el código del producto
         const stockElement = producto.querySelector('.stock'); // Elemento donde se muestra el stock
         const precioElement = producto.querySelector('.price'); // Elemento donde se muestra el precio
+        const nombreElement = producto.querySelector('.nombre'); // Elemento donde se muestra el nombre
 
         // Asegúrate de que el elemento exista antes de actualizar
         if (codigo) {
@@ -694,6 +709,13 @@ async function updateCatalogData() {
                 precioElement.textContent = precio !== 'Error' ? `$${precio}` : 'Error';
             } else {
                 console.warn(`Elemento '.price' no encontrado para el producto con código: ${codigo}`);
+            }
+
+            if (nombreElement) {
+                const nombre = await fetchNombre(codigo);
+                nombreElement.textContent = nombre !== 'Error' ? nombre : 'Error';
+            } else {
+                console.warn(`Elemento '.nombre' no encontrado para el producto con código: ${codigo}`);
             }
         } else {
             console.warn(`Código no encontrado para un producto en el catálogo.`);

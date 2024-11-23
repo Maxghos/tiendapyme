@@ -81,3 +81,42 @@ document.addEventListener('DOMContentLoaded', function() {
 // **FINAL FUNCIÓN PARA VENTANA EMERGENTE DE SESIÓN**
 //--------------------------------------------------------------------------------------------------------------------------------------
 
+// **LÓGICA PARA IDENTIFICAR ADMINISTRADOR O USUARIO NORMAL**
+const form = document.querySelector("form");
+
+form.addEventListener("submit", async (event) => {
+    event.preventDefault(); // Evita el comportamiento predeterminado del formulario
+
+    // Obtener valores ingresados
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+
+    try {
+        // Enviar las credenciales al backend
+        const response = await fetch('https://tiendapyme-production.up.railway.app/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            if (data.id_rol === 1) {
+                // Redirigir a la página de administrador
+                window.location.href = "../PaginasAdmin/InicioAdmi/inicioad.html";
+            } else if (data.id_rol === 2) {
+                // Redirigir a la página de usuario normal
+                window.location.href = "../Portada/Portada.html";
+            } else {
+                alert("Rol no reconocido.");
+            }
+        } else {
+            // Mostrar el error del backend
+            alert(data.error || "Error al iniciar sesión.");
+        }
+    } catch (error) {
+        console.error("Error durante la autenticación:", error);
+        alert("Hubo un problema al iniciar sesión. Inténtalo nuevamente.");
+    }
+});
