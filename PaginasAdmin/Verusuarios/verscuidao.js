@@ -1,4 +1,6 @@
-const API_URL = 'https://tiendapyme-production.up.railway.app/api/registrarse'; // Endpoint para registrar usuarios
+// Definimos las URLs necesarias para interactuar con el backend
+const API_FETCH_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Para obtener y manejar usuarios
+const API_REGISTER_URL = 'https://tiendapyme-production.up.railway.app/api/registrarse'; // Para registrar un nuevo usuario
 
 // Alternar el menú lateral
 function toggleMenu() {
@@ -18,7 +20,6 @@ function closeModal(modalId) {
 
 // Obtener y mostrar usuarios desde la base de datos
 async function fetchUsers() {
-    const API_FETCH_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Reemplaza si tienes otro endpoint para obtener usuarios
     try {
         const response = await fetch(API_FETCH_URL);
         if (!response.ok) {
@@ -73,7 +74,7 @@ async function addUser() {
     console.log("Datos enviados al servidor:", payload);
 
     try {
-        const response = await fetch(API_URL, {
+        const response = await fetch(API_REGISTER_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -97,31 +98,35 @@ async function addUser() {
 async function editUser(userId) {
     const nombre = prompt('Introduce el nuevo nombre del usuario');
     const correo = prompt('Introduce el nuevo correo electrónico');
-    const rol = confirm('¿Es Administrador?') ? 1 : 2; // Asignar rol basado en confirmación
+    const rol = confirm('¿Es Administrador?') ? 1 : 2;
 
     if (!nombre || !correo) {
         alert('No puedes dejar los campos vacíos');
         return;
     }
 
+    const payload = {
+        nombre,
+        correo_electronico: correo,
+        id_rol: rol,
+    };
+
+    console.log("Datos enviados al servidor para editar:", payload);
+
     try {
-        const response = await fetch(`${API_URL}/${userId}`, {
+        const response = await fetch(`${API_FETCH_URL}/${userId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                nombre,
-                correo_electronico: correo,
-                id_rol: rol
-            })
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al editar el usuario');
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.error || 'Error al editar el usuario');
         }
 
         alert('Usuario editado exitosamente');
-        fetchUsers(); // Actualizar la lista de usuarios
+        fetchUsers(); // Recargar la lista de usuarios
     } catch (error) {
         console.error('Error al editar usuario:', error.message);
         alert(`No se pudo editar el usuario: ${error.message}`);
@@ -132,15 +137,14 @@ async function editUser(userId) {
 async function confirmDeleteUser(userId) {
     if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
 
-    const API_DELETE_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Asegúrate de que este endpoint permita eliminar
     try {
-        const response = await fetch(`${API_DELETE_URL}/${userId}`, {
-            method: 'DELETE'
+        const response = await fetch(`${API_FETCH_URL}/${userId}`, {
+            method: 'DELETE',
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || 'Error al eliminar el usuario');
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.error || 'Error al eliminar el usuario');
         }
 
         alert('Usuario eliminado exitosamente');
