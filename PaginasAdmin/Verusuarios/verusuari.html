@@ -58,32 +58,38 @@
         </div>
         
         <!-- Modal para Agregar Usuario -->
-        <div id="addUserModal" class="modal">
-            <div class="modal-content">
-                <!-- Botón de cierre -->
-                <span class="close" onclick="closeModal('addUserModal')">&times;</span>
-                
-                <h2>Agregar Usuario</h2>
-                <form id="addUserForm">
-                    <label for="userName">Nombre:</label>
-                    <input type="text" id="userName" required>
-                    
-                    <label for="userEmail">Email:</label>
-                    <input type="email" id="userEmail" required>
+<div id="addUserModal" class="modal">
+    <div class="modal-content">
+        <!-- Botón de cierre -->
+        <span class="close" onclick="closeModal('addUserModal')">&times;</span>
+        
+        <h2>Agregar Usuario</h2>
+        <form id="addUserForm">
+            <label for="userName">Nombre:</label>
+            <input type="text" id="userName" required>
+            
+            <label for="userEmail">Email:</label>
+            <input type="email" id="userEmail" required>
 
-                    <label for="userPassword">Contraseña:</label>
-                    <input type="password" id="userPassword" required>
+            <label for="userPassword">Contraseña:</label>
+            <input type="password" id="userPassword" required>
 
-                    <label for="userRole">Rol:</label>
-                    <select id="userRole">
-                        <option value="admin">Administrador</option>
-                        <option value="user">Usuario</option>
-                    </select>
+            <label for="userRole">Rol:</label>
+            <select id="userRole">
+                <option value="admin">Administrador</option>
+                <option value="user">Usuario</option>
+            </select>
 
-                    <button type="button" onclick="addUser()">Guardar Usuario</button>
-                </form>
-            </div>
-        </div>
+            <label for="userAddress">Domicilio:</label>
+            <input type="text" id="userAddress" required>
+
+            <label for="userPhone">Teléfono:</label>
+            <input type="text" id="userPhone" required>
+
+            <button type="button" onclick="addUser()">Guardar Usuario</button>
+        </form>
+    </div>
+</div>
     </div>
 
     <script src="verscuidao.js"></script>

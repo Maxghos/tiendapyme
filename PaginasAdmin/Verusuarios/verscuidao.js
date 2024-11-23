@@ -1,4 +1,4 @@
-const API_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Cambia por tu ruta real
+const API_URL = 'https://tiendapyme-production.up.railway.app/api/registrarse'; // Endpoint para registrar usuarios
 
 // Alternar el menú lateral
 function toggleMenu() {
@@ -18,8 +18,9 @@ function closeModal(modalId) {
 
 // Obtener y mostrar usuarios desde la base de datos
 async function fetchUsers() {
+    const API_FETCH_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Reemplaza si tienes otro endpoint para obtener usuarios
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_FETCH_URL);
         if (!response.ok) {
             throw new Error('Error al obtener los usuarios');
         }
@@ -52,36 +53,43 @@ async function addUser() {
     const correo = document.getElementById('userEmail').value;
     const contraseña = document.getElementById('userPassword').value;
     const rol = document.getElementById('userRole').value;
+    const domicilio = document.getElementById('userAddress').value || 'Sin domicilio';
+    const telefono = document.getElementById('userPhone').value || 'Sin teléfono';
 
     if (!nombre || !correo || !contraseña) {
-        alert('Por favor, completa todos los campos');
+        alert('Por favor, completa los campos Nombre, Email y Contraseña.');
         return;
     }
+
+    const payload = {
+        nombre,
+        correo_electronico: correo,
+        contraseña,
+        id_rol: rol === 'admin' ? 1 : 2, // 1 para Admin, 2 para Usuario
+        domicilio,
+        telefono,
+    };
+
+    console.log("Datos enviados al servidor:", payload);
 
     try {
         const response = await fetch(API_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                nombre,
-                correo_electronico: correo,
-                contraseña,
-                id_rol: rol === 'admin' ? 1 : 2, // 1 para Admin, 2 para Usuario
-                domicilio: 'Sin domicilio', // Valor predeterminado
-                telefono: 'Sin teléfono'   // Valor predeterminado
-            })
+            body: JSON.stringify(payload),
         });
 
         if (!response.ok) {
-            throw new Error('Error al agregar el usuario');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al agregar el usuario');
         }
 
         alert('Usuario agregado exitosamente');
         closeModal('addUserModal');
-        fetchUsers(); // Actualizar la lista de usuarios
+        fetchUsers();
     } catch (error) {
         console.error('Error al agregar usuario:', error.message);
-        alert('No se pudo agregar el usuario.');
+        alert(`No se pudo agregar el usuario: ${error.message}`);
     }
 }
 
@@ -89,7 +97,7 @@ async function addUser() {
 async function editUser(userId) {
     const nombre = prompt('Introduce el nuevo nombre del usuario');
     const correo = prompt('Introduce el nuevo correo electrónico');
-    const rol = confirm('¿Es Administrador (si será administrador aprete cancelar?') ? 1 : 2; // Asignar rol basado en confirmación
+    const rol = confirm('¿Es Administrador?') ? 1 : 2; // Asignar rol basado en confirmación
 
     if (!nombre || !correo) {
         alert('No puedes dejar los campos vacíos');
@@ -108,14 +116,15 @@ async function editUser(userId) {
         });
 
         if (!response.ok) {
-            throw new Error('Error al editar el usuario');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al editar el usuario');
         }
 
         alert('Usuario editado exitosamente');
         fetchUsers(); // Actualizar la lista de usuarios
     } catch (error) {
         console.error('Error al editar usuario:', error.message);
-        alert('No se pudo editar el usuario.');
+        alert(`No se pudo editar el usuario: ${error.message}`);
     }
 }
 
@@ -123,20 +132,22 @@ async function editUser(userId) {
 async function confirmDeleteUser(userId) {
     if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
 
+    const API_DELETE_URL = 'https://tiendapyme-production.up.railway.app/api/usuarios'; // Asegúrate de que este endpoint permita eliminar
     try {
-        const response = await fetch(`${API_URL}/${userId}`, {
+        const response = await fetch(`${API_DELETE_URL}/${userId}`, {
             method: 'DELETE'
         });
 
         if (!response.ok) {
-            throw new Error('Error al eliminar el usuario');
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al eliminar el usuario');
         }
 
         alert('Usuario eliminado exitosamente');
         fetchUsers(); // Actualizar la lista de usuarios
     } catch (error) {
         console.error('Error al eliminar usuario:', error.message);
-        alert('No se pudo eliminar el usuario.');
+        alert(`No se pudo eliminar el usuario: ${error.message}`);
     }
 }
 
