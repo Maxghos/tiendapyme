@@ -130,6 +130,13 @@ async function updateProduct() {
         return;
     }
 
+    // Validación de precio
+if (productPrice < 0) {
+    document.getElementById('editErrorMessage').innerText = "El precio no puede ser negativo.";
+    document.getElementById('editErrorMessage').style.display = 'block';
+    return;
+}
+
     try {
         // Enviar la categoría tal cual desde el frontend
         const response = await fetch(`${BASE_URL}/productos/${idProducto}`, {
