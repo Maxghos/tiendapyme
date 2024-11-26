@@ -141,3 +141,36 @@ header h1 {
     display: inline-block; /* Cambié a inline-block para que respete el ancho proporcionado */
     line-height: 20px;
 }
+
+.orden {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #000000;
+    border-radius: 5px;
+}
+
+.orden p {
+    margin: 5px 0;
+}
+
+.orden button {
+    margin: 5px;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+}
+
+.aceptados-container, .rechazados-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.aceptados-container .orden {
+    background-color: #e7f9e7;
+}
+
+.rechazados-container .orden {
+    background-color: #fde7e7;
+}
+

@@ -468,6 +468,64 @@ app.delete('/api/usuarios/:id', async (req, res) => {
     }
 });
 
+//Obtener Solcitudes de Ordenes
+app.get('/api/ordenes', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT id_orden, id_usuario, fecha_aprobacion, estado_envio FROM orden_compra');
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al obtener órdenes:', error);
+        res.status(500).json({ error: 'Error al obtener órdenes' });
+    }
+});
+
+// Cambiar estado a 'Aceptado'
+app.post('/api/aceptar-orden/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `UPDATE orden_compra
+             SET estado_envio = 'Aceptado', fecha_aprobacion = NOW()
+             WHERE id_orden = $1
+             RETURNING id_orden, estado_envio, fecha_aprobacion`,
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Orden no encontrada' });
+        }
+
+        res.json(result.rows[0]); // Devolver los datos actualizados
+    } catch (error) {
+        console.error('Error al aceptar la orden:', error);
+        res.status(500).json({ error: 'Error al aceptar la orden' });
+    }
+});
+
+// Cambiar estado a 'Rechazado'
+app.post('/api/rechazar-orden/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const result = await pool.query(
+            `UPDATE orden_compra
+             SET estado_envio = 'Rechazado', fecha_aprobacion = NOW()
+             WHERE id_orden = $1
+             RETURNING id_orden, estado_envio, fecha_aprobacion`,
+            [id]
+        );
+
+        if (result.rowCount === 0) {
+            return res.status(404).json({ error: 'Orden no encontrada' });
+        }
+
+        res.json(result.rows[0]); // Devolver los datos actualizados
+    } catch (error) {
+        console.error('Error al rechazar la orden:', error);
+        res.status(500).json({ error: 'Error al rechazar la orden' });
+    }
+});
+
+
 
 // Ruta para servir el archivo index.html
 app.get('*', (req, res) => {
